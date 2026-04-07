@@ -3,11 +3,10 @@ package com.example.simongame
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.navigation.compose.rememberNavController
-import com.example.simongame.ui.theme.SimonGameTheme
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.simongame.ui.theme.SimonGameTheme
 
 class MainActivity : ComponentActivity() {
 
@@ -31,6 +30,9 @@ class MainActivity : ComponentActivity() {
                                 navController.navigate("history")
                             }
                         )
+                    }
+                    composable("history") {
+                        SeconScreen(rounds = gameHistory.getRounds())
                     }
                 }
             }

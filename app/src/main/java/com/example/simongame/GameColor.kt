@@ -1,5 +1,5 @@
 package com.example.simongame
 
-class Color (var letter: Char){
+class GameColor (var letter: Char){
     fun printLetter(): String = letter.toString();
 }
