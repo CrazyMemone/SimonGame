@@ -10,7 +10,7 @@ import com.example.simongame.ui.theme.SimonGameTheme
 
 class MainActivity : ComponentActivity() {
 
-    val gameHistory = GameHistory()
+    val gameHistory = GameHistory() //storico partite concluse
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,16 +21,19 @@ class MainActivity : ComponentActivity() {
                     navController = navController,
                     startDestination = "main"
                 ) {
+                    //schermata 1 gioco
                     composable("main") {
                         MainScreen(
-                            onEndGame = { sequenza ->
+                            onEndGame = { sequenza -> //creo round e lo salvo
                                 val round = Round()
                                 round.fromString(sequenza)
                                 gameHistory.addRound(round)
+                                //navigazione schermata 2
                                 navController.navigate("history")
                             }
                         )
                     }
+                    //schermata 2
                     composable("history") {
                         SeconScreen(rounds = gameHistory.getRounds())
                     }

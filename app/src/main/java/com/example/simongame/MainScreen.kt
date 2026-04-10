@@ -21,14 +21,15 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun MainScreen(onEndGame: (String) -> Unit) {
+    //sequenza corrente come stringa
 
     var sequenza by rememberSaveable { mutableStateOf("") }
-
+//aggiunge lettera colore premuto
     fun onColorPressed(color: GameColor) {
         if (sequenza.isEmpty()) sequenza += color.printLetter()
         else sequenza += ", ${color.printLetter()}"
     }
-
+// disposizione elementi
     Column {
         ColorGrid(onColorPressed = { onColorPressed(it) })
         SequenceText(sequenza = sequenza)
@@ -43,7 +44,7 @@ fun MainScreen(onEndGame: (String) -> Unit) {
 }
 @Composable
 fun ColorGrid(onColorPressed: (GameColor) -> Unit) {
-
+//lista coppie
     val colors = listOf(
         GameColor('R') to androidx.compose.ui.graphics.Color.Red,
         GameColor('G') to androidx.compose.ui.graphics.Color.Green,
@@ -59,6 +60,7 @@ fun ColorGrid(onColorPressed: (GameColor) -> Unit) {
                 for (col in 0..1) {
                     val index = row * 2 + col
                     val (gameColor, composeColor) = colors[index]
+                    //rettangolo colorato cliccabile
                     Box(
                         modifier = Modifier
                             .size(100.dp)
@@ -72,6 +74,7 @@ fun ColorGrid(onColorPressed: (GameColor) -> Unit) {
     }
 }
 @Composable
+//area testo con lista corrente
 fun SequenceText(sequenza: String) {
     Text(
         text = sequenza,
@@ -84,6 +87,7 @@ fun SequenceText(sequenza: String) {
 }
 
 @Composable
+//area con pulsanti cancella e fine partita
 fun ButtonsArea(
     onClear: () -> Unit,
     onEndGame: () -> Unit
