@@ -17,7 +17,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
+import android.content.res.Configuration
 
 @Composable
 fun MainScreen(onEndGame: (String) -> Unit) {
@@ -25,23 +27,46 @@ fun MainScreen(onEndGame: (String) -> Unit) {
 
     var sequenza by rememberSaveable { mutableStateOf("") }
 //aggiunge lettera colore premuto
+    val orientation = LocalConfiguration.current.orientation
+
     fun onColorPressed(color: GameColor) {
         if (sequenza.isEmpty()) sequenza += color.printLetter()
         else sequenza += ", ${color.printLetter()}"
     }
 // disposizione elementi
-    Column {
-        ColorGrid(onColorPressed = { onColorPressed(it) })
-        SequenceText(sequenza = sequenza)
-        ButtonsArea(
-            onClear = { sequenza = "" },
-            onEndGame = {
-                onEndGame(sequenza)
-                sequenza = ""
+    // Layout diverso in base all'orientamento
+    if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+        // Landscape: matrice a sinistra, testo e bottoni a destra
+        Row {
+            ColorGrid(onColorPressed = { onColorPressed(it) })
+            Column {
+                SequenceText(sequenza = sequenza)
+                ButtonsArea(
+                    onClear = { sequenza = "" },
+                    onEndGame = {
+                        onEndGame(sequenza)
+                        sequenza = ""
+                    }
+                )
             }
-        )
+        }
+    } else {
+        // Portrait:  uno sotto l'altro
+        Column {
+            ColorGrid(onColorPressed = { onColorPressed(it) })
+            SequenceText(sequenza = sequenza)
+            ButtonsArea(
+                onClear = { sequenza = "" },
+                onEndGame = {
+                    onEndGame(sequenza)
+                    sequenza = ""
+                }
+            )
+        }
     }
+
 }
+
 @Composable
 fun ColorGrid(onColorPressed: (GameColor) -> Unit) {
 //lista coppie
