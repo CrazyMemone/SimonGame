@@ -37,5 +37,7 @@ class Round() {
             }
         }
     }
+    // Restituisce il numero di colori premuti nella sequenza
+    fun getCount(): Int = sequence.size
 
 }
