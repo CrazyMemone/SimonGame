@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import android.content.res.Configuration
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun MainScreen(onEndGame: (String) -> Unit) {
@@ -124,13 +125,13 @@ fun ButtonsArea(
             onClick = onClear,
             modifier = Modifier.padding(end = 8.dp)
         ) {
-            Text(text = "Cancella")
+            Text(text = stringResource(R.string.cancella))
         }
 
         Button(
             onClick = onEndGame
         ) {
-            Text(text = "Fine partita")
+            Text(text = stringResource(R.string.fine_partita))
         }
     }
 }

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SimonGame</string>
+    <string name="cancella">Cancel</string>
+    <string name="fine_partita">Game Over</string>
+</resources>
