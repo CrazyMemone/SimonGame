@@ -2,5 +2,5 @@
 <resources>
     <string name="app_name">SimonGame</string>
     <string name="cancella">Cancel</string>
-    <string name="fine_partita">Game Over</string>
+    <string name="fine_partita">End Game</string>
 </resources>

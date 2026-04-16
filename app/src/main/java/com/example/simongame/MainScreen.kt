@@ -20,7 +20,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import android.content.res.Configuration
+import androidx.compose.foundation.border
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun MainScreen(onEndGame: (String) -> Unit) {
@@ -102,13 +109,28 @@ fun ColorGrid(onColorPressed: (GameColor) -> Unit) {
 @Composable
 //area testo con lista corrente
 fun SequenceText(sequenza: String) {
+    //stato per gestire la posizione dello scroll
+    val scrollState = rememberScrollState()
     Text(
         text = sequenza,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
-            .height(100.dp),
-        maxLines = 5
+            .height(150.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .background(Color(0xFFF2F2F2), shape = RoundedCornerShape(4.dp))
+            .border(
+                width = 2.dp,
+                color = Color.Gray,
+                shape = RoundedCornerShape(4.dp)
+            )
+            .verticalScroll(scrollState)
+            .padding(12.dp),
+
+
+        fontSize = 22.sp,
+        fontWeight = FontWeight.Medium,
+        color = Color.DarkGray,
+        lineHeight = 30.sp
     )
 }
 
