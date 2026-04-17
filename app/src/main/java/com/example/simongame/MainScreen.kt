@@ -21,9 +21,12 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import android.content.res.Configuration
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -31,10 +34,10 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun MainScreen(onEndGame: (String) -> Unit) {
-    //sequenza corrente come stringa
+    // sequenza corrente come stringa
 
     var sequenza by rememberSaveable { mutableStateOf("") }
-//aggiunge lettera colore premuto
+// aggiunge lettera colore premuto
     val orientation = LocalConfiguration.current.orientation
 
     fun onColorPressed(color: GameColor) {
@@ -45,9 +48,22 @@ fun MainScreen(onEndGame: (String) -> Unit) {
     // Layout diverso in base all'orientamento
     if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
         // Landscape: matrice a sinistra, testo e bottoni a destra
-        Row {
-            ColorGrid(onColorPressed = { onColorPressed(it) })
-            Column {
+        Row(
+            modifier = Modifier
+                .fillMaxSize() // occupa tutto lo schermo
+                .padding(40.dp), // spazio dai bordi del telefono
+            verticalAlignment = Alignment.CenterVertically // centra tutto verticalmente
+        ) {
+            // matrice a sinistra
+            Box(modifier = Modifier.padding(end = 24.dp)) {
+                ColorGrid(onColorPressed = { onColorPressed(it) })
+            }
+
+            // colonna comandi
+            Column(
+                modifier = Modifier.width(400.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 SequenceText(sequenza = sequenza)
                 ButtonsArea(
                     onClear = { sequenza = "" },
@@ -60,7 +76,12 @@ fun MainScreen(onEndGame: (String) -> Unit) {
         }
     } else {
         // Portrait:  uno sotto l'altro
-        Column {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 50.dp),
+            horizontalAlignment = Alignment.CenterHorizontally // centra la matrice e gli altri elementi
+        ){
             ColorGrid(onColorPressed = { onColorPressed(it) })
             SequenceText(sequenza = sequenza)
             ButtonsArea(
@@ -77,7 +98,7 @@ fun MainScreen(onEndGame: (String) -> Unit) {
 
 @Composable
 fun ColorGrid(onColorPressed: (GameColor) -> Unit) {
-//lista coppie
+// lista coppie
     val colors = listOf(
         GameColor('R') to androidx.compose.ui.graphics.Color.Red,
         GameColor('G') to androidx.compose.ui.graphics.Color.Green,
@@ -93,10 +114,10 @@ fun ColorGrid(onColorPressed: (GameColor) -> Unit) {
                 for (col in 0..1) {
                     val index = row * 2 + col
                     val (gameColor, composeColor) = colors[index]
-                    //rettangolo colorato cliccabile
+                    // rettangolo colorato cliccabile
                     Box(
                         modifier = Modifier
-                            .size(100.dp)
+                            .size(125.dp)
                             .padding(4.dp)
                             .background(composeColor)
                             .clickable { onColorPressed(gameColor) }
@@ -107,9 +128,9 @@ fun ColorGrid(onColorPressed: (GameColor) -> Unit) {
     }
 }
 @Composable
-//area testo con lista corrente
+// area testo con lista corrente
 fun SequenceText(sequenza: String) {
-    //stato per gestire la posizione dello scroll
+    // stato per gestire la posizione dello scroll
     val scrollState = rememberScrollState()
     Text(
         text = sequenza,
@@ -135,7 +156,7 @@ fun SequenceText(sequenza: String) {
 }
 
 @Composable
-//area con pulsanti cancella e fine partita
+// area con pulsanti cancella e fine partita
 fun ButtonsArea(
     onClear: () -> Unit,
     onEndGame: () -> Unit
