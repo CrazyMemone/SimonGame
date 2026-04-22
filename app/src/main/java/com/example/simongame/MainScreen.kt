@@ -44,6 +44,7 @@ fun MainScreen(onEndGame: (String) -> Unit) {
         if (sequenza.isEmpty()) sequenza += color.printLetter()
         else sequenza += ", ${color.printLetter()}"
     }
+
 // disposizione elementi
     // Layout diverso in base all'orientamento
     if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -94,7 +95,8 @@ fun MainScreen(onEndGame: (String) -> Unit) {
         }
     }
 
-}
+ }
+
 
 @Composable
 fun ColorGrid(onColorPressed: (GameColor) -> Unit) {
@@ -117,7 +119,7 @@ fun ColorGrid(onColorPressed: (GameColor) -> Unit) {
                     // rettangolo colorato cliccabile
                     Box(
                         modifier = Modifier
-                            .size(125.dp)
+                            .size(100.dp)
                             .padding(4.dp)
                             .background(composeColor)
                             .clickable { onColorPressed(gameColor) }
@@ -144,10 +146,12 @@ fun SequenceText(sequenza: String) {
                 color = Color.Gray,
                 shape = RoundedCornerShape(4.dp)
             )
+            // scorrimento verticale
             .verticalScroll(scrollState)
             .padding(12.dp),
 
 
+        // stile testo
         fontSize = 22.sp,
         fontWeight = FontWeight.Medium,
         color = Color.DarkGray,

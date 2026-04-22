@@ -27,19 +27,19 @@ class MainActivity : ComponentActivity() {
                     navController = navController,
                     startDestination = "main"
                 ) {
-                    //schermata 1 gioco
+                    // MainScreen
                     composable("main") {
                         MainScreen(
                             onEndGame = { sequenza ->
                                 rounds.add(sequenza);
-                                //navigazione schermata 2
+                                // navigazione schermata 2
                                 navController.navigate("history")
                             }
                         )
                     }
-                    //schermata 2
+                    // SecondScreen
                     composable(route = "history") {
-                        // Converte le stringhe in Round usando un ciclo for
+                        // converte le stringhe in Round usando un ciclo for
                         val roundList = mutableListOf<Round>()
                         for (sequenza in rounds) {
                             val round = Round()
