@@ -34,62 +34,59 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun MainScreen(onEndGame: (String) -> Unit) {
-    // sequenza corrente come stringa
+    var sequence by rememberSaveable { mutableStateOf("") }
 
-    var sequenza by rememberSaveable { mutableStateOf("") }
-// aggiunge lettera colore premuto
     val orientation = LocalConfiguration.current.orientation
-
+    // add the letter of the color pressed to the sequence
     fun onColorPressed(color: GameColor) {
-        if (sequenza.isEmpty()) sequenza += color.printLetter()
-        else sequenza += ", ${color.printLetter()}"
+        if (sequence.isEmpty()) sequence += color.printLetter()
+        else sequence += ", ${color.printLetter()}"
     }
 
-// disposizione elementi
-    // Layout diverso in base all'orientamento
+    // responsive layout based on orientation
     if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-        // Landscape: matrice a sinistra, testo e bottoni a destra
+        // Landscape: grid on the left, controls on the right
         Row(
             modifier = Modifier
-                .fillMaxSize() // occupa tutto lo schermo
-                .padding(40.dp), // spazio dai bordi del telefono
-            verticalAlignment = Alignment.CenterVertically // centra tutto verticalmente
+                .fillMaxSize() // fills the entire screen
+                .padding(40.dp), // spacing from phone edge
+            verticalAlignment = Alignment.CenterVertically // center elements vertically
         ) {
-            // matrice a sinistra
+            // grid on the left side
             Box(modifier = Modifier.padding(end = 24.dp)) {
                 ColorGrid(onColorPressed = { onColorPressed(it) })
             }
 
-            // colonna comandi
+            // command column
             Column(
                 modifier = Modifier.width(400.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                SequenceText(sequenza = sequenza)
+                SequenceText(sequence = sequence)
                 ButtonsArea(
-                    onClear = { sequenza = "" },
+                    onClear = { sequence = "" },
                     onEndGame = {
-                        onEndGame(sequenza)
-                        sequenza = ""
+                        onEndGame(sequence)
+                        sequence = ""
                     }
                 )
             }
         }
     } else {
-        // Portrait:  uno sotto l'altro
+        // Portrait: elements stacked vertically
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = 50.dp),
-            horizontalAlignment = Alignment.CenterHorizontally // centra la matrice e gli altri elementi
+            horizontalAlignment = Alignment.CenterHorizontally // center the grid and other elements
         ){
             ColorGrid(onColorPressed = { onColorPressed(it) })
-            SequenceText(sequenza = sequenza)
+            SequenceText(sequence = sequence)
             ButtonsArea(
-                onClear = { sequenza = "" },
+                onClear = { sequence = "" },
                 onEndGame = {
-                    onEndGame(sequenza)
-                    sequenza = ""
+                    onEndGame(sequence)
+                    sequence = ""
                 }
             )
         }
@@ -100,7 +97,7 @@ fun MainScreen(onEndGame: (String) -> Unit) {
 
 @Composable
 fun ColorGrid(onColorPressed: (GameColor) -> Unit) {
-// lista coppie
+// list of color pairs
     val colors = listOf(
         GameColor('R') to androidx.compose.ui.graphics.Color.Red,
         GameColor('G') to androidx.compose.ui.graphics.Color.Green,
@@ -111,12 +108,14 @@ fun ColorGrid(onColorPressed: (GameColor) -> Unit) {
     )
 
     Column {
+        // iterate through rows to generate the grid
         for (row in 0..2) {
             Row {
+                // iterate through columns
                 for (col in 0..1) {
                     val index = row * 2 + col
                     val (gameColor, composeColor) = colors[index]
-                    // rettangolo colorato cliccabile
+                    // clickable colored rectangle
                     Box(
                         modifier = Modifier
                             .size(100.dp)
@@ -130,12 +129,12 @@ fun ColorGrid(onColorPressed: (GameColor) -> Unit) {
     }
 }
 @Composable
-// area testo con lista corrente
-fun SequenceText(sequenza: String) {
-    // stato per gestire la posizione dello scroll
+// text area displaying the current sequence
+fun SequenceText(sequence: String) {
+    // state to manage the scroll position
     val scrollState = rememberScrollState()
     Text(
-        text = sequenza,
+        text = sequence,
         modifier = Modifier
             .fillMaxWidth()
             .height(150.dp)
@@ -146,12 +145,12 @@ fun SequenceText(sequenza: String) {
                 color = Color.Gray,
                 shape = RoundedCornerShape(4.dp)
             )
-            // scorrimento verticale
+            // vertical scrolling
             .verticalScroll(scrollState)
             .padding(12.dp),
 
 
-        // stile testo
+        // text styling
         fontSize = 22.sp,
         fontWeight = FontWeight.Medium,
         color = Color.DarkGray,
@@ -160,7 +159,7 @@ fun SequenceText(sequenza: String) {
 }
 
 @Composable
-// area con pulsanti cancella e fine partita
+// area with clear and end game buttons
 fun ButtonsArea(
     onClear: () -> Unit,
     onEndGame: () -> Unit

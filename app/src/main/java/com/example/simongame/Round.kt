@@ -1,33 +1,23 @@
 package com.example.simongame
-//rappresenta singola partita
+// represents a single game round
 class Round() {
-    //lista colori selezionati
+    // list of selected colors in the sequence
     private val sequence: MutableList<GameColor> = mutableListOf()
-    //aggiunge colore alla lista
-
+    // adds new color to the sequence
     fun addColor(gameColor: GameColor) {
         sequence.add(gameColor)
     }
-
-    fun getSequence(): List<GameColor> = sequence
-    //restituisce la lista come stringa
     fun printSequence(): String = sequence.joinToString(", ") { it.printLetter() }
-    //svuota la lista corrente
+    // clear the current sequence
     fun clear(){
         sequence.clear()
     }
-    //restituisce una copia della partita corrente
-    fun copy(): Round {
-        val newRound = Round()
-        for (color in this.sequence) newRound.addColor(color)
-        return newRound
-    }
-    //ricostruisce partendo da una stringa
-    fun fromString(sequenza: String) {
+    // reconstructs the round sequence from a string.
+    fun fromString(sequence: String) {
         clear()
-        if (sequenza.isEmpty()) return
-        for (lettera in sequenza.split(", ")) {
-            when (lettera) {
+        if (sequence.isEmpty()) return
+        for (lecter in sequence.split(", ")) {
+            when (lecter) {
                 "R" -> addColor(GameColor('R'))
                 "G" -> addColor(GameColor('G'))
                 "B" -> addColor(GameColor('B'))
@@ -37,7 +27,7 @@ class Round() {
             }
         }
     }
-    // Restituisce il numero di colori premuti nella sequenza
+    // returns the number of colors in the sequence
     fun getCount(): Int = sequence.size
 
 }

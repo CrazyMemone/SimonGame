@@ -18,8 +18,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             SimonGameTheme {
                 val navController = rememberNavController()
-                // Lista delle sequenze salvate come stringhe
-                // rememberSaveable sopravvive alla rotazione
+                // list of saved sequence stored as strings
+                // rememberSaveable ensure the state survives configuration change
                 val rounds = rememberSaveable {
                     mutableStateListOf<String>()
                 }
@@ -30,23 +30,23 @@ class MainActivity : ComponentActivity() {
                     // MainScreen
                     composable("main") {
                         MainScreen(
-                            onEndGame = { sequenza ->
-                                rounds.add(sequenza);
-                                // navigazione schermata 2
+                            onEndGame = { sequence ->
+                                rounds.add(sequence); // added the current game sequence to history
+                                // navigate to second screen (history)
                                 navController.navigate("history")
                             }
                         )
                     }
                     // SecondScreen
                     composable(route = "history") {
-                        // converte le stringhe in Round usando un ciclo for
+                        // transform the list of strings into a list of Round objects
                         val roundList = mutableListOf<Round>()
-                        for (sequenza in rounds) {
+                        for (sequence in rounds) {
                             val round = Round()
-                            round.fromString(sequenza)
+                            round.fromString(sequence)
                             roundList.add(round)
                         }
-                        SeconScreen(rounds = roundList)
+                        SecondScreen(rounds = roundList)
                     }
                 }
             }
