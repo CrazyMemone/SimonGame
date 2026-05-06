@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -139,10 +140,11 @@ fun SequenceText(sequence: String) {
             .fillMaxWidth()
             .height(150.dp)
             .padding(horizontal = 16.dp, vertical = 8.dp)
-            .background(Color(0xFFF2F2F2), shape = RoundedCornerShape(4.dp))
+            //surfaceVariant for dark mode
+            .background(MaterialTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(4.dp))
             .border(
                 width = 2.dp,
-                color = Color.Gray,
+                color = MaterialTheme.colorScheme.outline,
                 shape = RoundedCornerShape(4.dp)
             )
             // vertical scrolling
@@ -153,7 +155,7 @@ fun SequenceText(sequence: String) {
         // text styling
         fontSize = 22.sp,
         fontWeight = FontWeight.Medium,
-        color = Color.DarkGray,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
         lineHeight = 30.sp
     )
 }

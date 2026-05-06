@@ -3,13 +3,16 @@ package com.example.simongame
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.simongame.ui.theme.SimonGameTheme
-
+import androidx.compose.material3.Surface
 class MainActivity : ComponentActivity() {
 
 
@@ -17,6 +20,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             SimonGameTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ){
                 val navController = rememberNavController()
                 // list of saved sequence stored as strings
                 // rememberSaveable ensure the state survives configuration change
@@ -48,6 +55,7 @@ class MainActivity : ComponentActivity() {
                         }
                         SecondScreen(rounds = roundList)
                     }
+                }
                 }
             }
         }

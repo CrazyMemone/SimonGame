@@ -80,7 +80,7 @@ fun RoundItem(round: Round) {
                     text = round.getCount().toString(),
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Medium,
-                    color = Color.DarkGray,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
                     lineHeight = 30.sp
                 )
             }
@@ -94,7 +94,7 @@ fun RoundItem(round: Round) {
                 overflow = TextOverflow.Ellipsis, // visual indicator for truncated text (...)
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Medium,
-                color = Color.DarkGray,
+                color =MaterialTheme.colorScheme.onBackground,
                 lineHeight = 30.sp
             )
         }
