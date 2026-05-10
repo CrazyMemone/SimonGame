@@ -13,8 +13,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.simongame.ui.theme.SimonGameTheme
 import androidx.compose.material3.Surface
-class MainActivity : ComponentActivity() {
+import androidx.compose.ui.platform.LocalContext
 
+class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,10 +31,23 @@ class MainActivity : ComponentActivity() {
                 val rounds = rememberSaveable {
                     mutableStateListOf<String>()
                 }
+
                 NavHost(
                     navController = navController,
-                    startDestination = "main"
+                    startDestination = "history"
                 ) {
+                    composable(route = "history") {
+                        // transform the list of strings into a list of Round objects
+                        val roundList = mutableListOf<Round>()
+                        for (sequence in rounds) {
+                            val round = Round()
+                            round.fromString(sequence)
+                            roundList.add(round)
+                        }
+                        SecondScreen(rounds = roundList,
+                            onPlayClick = { navController.navigate("main") }
+                                )
+                    }
                     // MainScreen
                     composable("main") {
                         MainScreen(
@@ -44,17 +58,7 @@ class MainActivity : ComponentActivity() {
                             }
                         )
                     }
-                    // SecondScreen
-                    composable(route = "history") {
-                        // transform the list of strings into a list of Round objects
-                        val roundList = mutableListOf<Round>()
-                        for (sequence in rounds) {
-                            val round = Round()
-                            round.fromString(sequence)
-                            roundList.add(round)
-                        }
-                        SecondScreen(rounds = roundList)
-                    }
+
                 }
                 }
             }

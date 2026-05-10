@@ -13,7 +13,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,13 +33,26 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 // screen that displays the history of played rounds.
-fun SecondScreen(rounds: List<Round>) {
+fun SecondScreen(rounds: List<Round>,
+                 onPlayClick: () -> Unit) {
     val orientation = LocalConfiguration.current.orientation
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = onPlayClick,
+                containerColor = MaterialTheme.colorScheme.primary
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Play")
+            }
+        }
+    ){ paddingValues ->
     if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
         // landscape
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(paddingValues)
                 .padding(horizontal = 64.dp)
         ) {
             item {
@@ -48,6 +66,7 @@ fun SecondScreen(rounds: List<Round>) {
         // portrait
         LazyColumn(
             modifier = Modifier
+                .padding(paddingValues)
                 .padding(horizontal = 0.dp) // all available horizontal space
         ) {
             item {
@@ -58,7 +77,7 @@ fun SecondScreen(rounds: List<Round>) {
             }
         }
     }
-}
+}}
 
 // represents a single row in the rounds history list.
 @Composable
