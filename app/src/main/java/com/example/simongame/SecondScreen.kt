@@ -1,26 +1,14 @@
 package com.example.simongame
 
 import android.content.res.Configuration
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,9 +20,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-// screen that displays the history of played rounds.
-fun SecondScreen(rounds: List<Round>,
-                 onPlayClick: () -> Unit) {
+// Screen that displays the history of played rounds.
+fun SecondScreen(
+    rounds: List<Round>,
+    onPlayClick: () -> Unit,
+    onMatchClick: (Int) -> Unit
+) {
     val orientation = LocalConfiguration.current.orientation
     Scaffold(
         floatingActionButton = {
@@ -45,50 +36,56 @@ fun SecondScreen(rounds: List<Round>,
                 Icon(Icons.Default.Add, contentDescription = "Play")
             }
         }
-    ){ paddingValues ->
-    if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-        // landscape
+    ) { paddingValues ->
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            // Landscape
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(horizontal = 64.dp)
+            ) {
+                item {
+                    Spacer(modifier = Modifier.height(20.dp))
+                }
 
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(horizontal = 64.dp)
-        ) {
-            item {
-                Spacer(modifier = Modifier.height(20.dp))
+                // Use itemsIndexed to pass the position to the click listener
+                itemsIndexed(rounds) { index, round ->
+                    RoundItem(round = round, onClick = { onMatchClick(index) })
+                }
             }
-            items(rounds) { round ->
-                RoundItem(round = round)
-            }
-        }
-    } else {
-        // portrait
-        LazyColumn(
-            modifier = Modifier
-                .padding(paddingValues)
-                .padding(horizontal = 0.dp) // all available horizontal space
-        ) {
-            item {
-                Spacer(modifier = Modifier.height(90.dp))
-            }
-            items(rounds) { round ->
-                RoundItem(round = round)
+        } else {
+            // Portrait
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(horizontal = 0.dp)
+            ) {
+                item {
+                    Spacer(modifier = Modifier.height(90.dp))
+                }
+
+                // Use itemsIndexed to pass the position to the click listener
+                itemsIndexed(rounds) { index, round ->
+                    RoundItem(round = round, onClick = { onMatchClick(index) })
+                }
             }
         }
     }
-}}
+}
 
-// represents a single row in the rounds history list.
+// Represents a single row in the rounds history list.
 @Composable
-fun RoundItem(round: Round) {
+fun RoundItem(round: Round, onClick: () -> Unit) {
     Row(
         modifier = Modifier
-            .padding(16.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .clickable { onClick() } // Handle click on the whole row
+            .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // circular container displaying the total count of colors in the sequence
+        // Circular container displaying the total count of colors in the sequence
         Surface(
             color = MaterialTheme.colorScheme.primaryContainer,
             shape = MaterialTheme.shapes.medium,
@@ -104,19 +101,20 @@ fun RoundItem(round: Round) {
                 )
             }
         }
+
         Spacer(modifier = Modifier.width(16.dp))
-        // column containing the sequence text
+
+        // Column containing the sequence text
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = round.printSequence(),
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis, // visual indicator for truncated text (...)
+                overflow = TextOverflow.Ellipsis, // Visual indicator for truncated text (...)
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Medium,
-                color =MaterialTheme.colorScheme.onBackground,
+                color = MaterialTheme.colorScheme.onBackground,
                 lineHeight = 30.sp
             )
         }
     }
-
 }
