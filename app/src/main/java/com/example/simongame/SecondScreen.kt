@@ -1,7 +1,6 @@
 package com.example.simongame
 
 import android.content.res.Configuration
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,15 +13,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
 // Screen that displays the history of played rounds.
 fun SecondScreen(
-    rounds: List<Round>,
+    rawRounds: List<String>,
     onPlayClick: () -> Unit,
     onMatchClick: (Int) -> Unit
 ) {
@@ -37,83 +38,107 @@ fun SecondScreen(
             }
         }
     ) { paddingValues ->
-        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            // Landscape
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .padding(horizontal = 64.dp)
-            ) {
-                item {
-                    Spacer(modifier = Modifier.height(20.dp))
-                }
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(horizontal = if (orientation == Configuration.ORIENTATION_LANDSCAPE) 64.dp else 0.dp)
+        ) {
+            item {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Spacer(modifier = Modifier.height(70.dp))
 
-                // Use itemsIndexed to pass the position to the click listener
-                itemsIndexed(rounds) { index, round ->
-                    RoundItem(round = round, onClick = { onMatchClick(index) })
+                    Text(
+                        text = "Match list",
+                        fontSize = 30.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+
+                    Spacer(modifier = Modifier.height(40.dp))
                 }
             }
-        } else {
-            // Portrait
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .padding(horizontal = 0.dp)
-            ) {
-                item {
-                    Spacer(modifier = Modifier.height(90.dp))
-                }
 
-                // Use itemsIndexed to pass the position to the click listener
-                itemsIndexed(rounds) { index, round ->
-                    RoundItem(round = round, onClick = { onMatchClick(index) })
-                }
+            // Match list
+            itemsIndexed(rawRounds) { index, rawString ->
+                RoundItem(rawString = rawString, onClick = { onMatchClick(index) })
             }
         }
     }
 }
 
-// Represents a single row in the rounds history list.
 @Composable
-fun RoundItem(round: Round, onClick: () -> Unit) {
+// Represents a single element (row) within the match history list
+fun RoundItem(rawString: String, onClick: () -> Unit) {
+    // Safety check: if the stored string is empty, stop execution and display nothing
+    if (rawString.isEmpty()) return
+    // Split the raw string into two parts using the separator character "|"
+    val parts = rawString.split("|")
+    // / Get the first part (the sequence of letters from the computer)
+    val sequencePart = parts.getOrNull(0) ?: ""
+    // Get the second part (the user's score), converting it to an integer
+    val score = parts.getOrNull(1)?.toIntOrNull() ?: 0
+    // Create a temporary instance
+    val tempRound = Round()
+    tempRound.fromString(sequencePart)
+    val formattedSequence = tempRound.printSequence()
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() } // Handle click on the whole row
+            .clickable { onClick() }
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Circular container displaying the total count of colors in the sequence
         Surface(
             color = MaterialTheme.colorScheme.primaryContainer,
             shape = MaterialTheme.shapes.medium,
-            modifier = Modifier.size(45.dp)
+            modifier = Modifier.size(70.dp)
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Text(
-                    text = round.getCount().toString(),
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    lineHeight = 30.sp
+                    text = score.toString(),
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }
         }
 
-        Spacer(modifier = Modifier.width(16.dp))
+        Spacer(modifier = Modifier.width(20.dp))
 
-        // Column containing the sequence text
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = round.printSequence(),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis, // Visual indicator for truncated text (...)
+                text = buildAnnotatedString {
+                    // Split the formatted sequence into a list of individual color strings
+                    val colors = if (formattedSequence.isNotEmpty()) formattedSequence.split(", ") else emptyList()
+
+                    // Iterate through each color in the list along with its index position
+                    colors.forEachIndexed { index, color ->
+                        // Check if the current item is at or past the point where the user made an error
+                        val isErrorOrBeyond = index >= score
+
+                        // Apply a specific text style dynamically based on the game result
+                        withStyle(style = SpanStyle(
+                            // Highlight failed or subsequent colors in red
+                            color = if (isErrorOrBeyond) Color.Red else Color.Unspecified,
+                            // Make the error sequence bold for better visual emphasis
+                            fontWeight = if (isErrorOrBeyond) FontWeight.Bold else FontWeight.Normal
+                        )) {
+                            // Append the current color string to the annotated sequence builder
+                            append(color)
+                        }
+
+                        // Add a comma and space separator between colors, except after the last element
+                        if (index < colors.size - 1) append(", ")
+                    }
+                },
                 fontSize = 22.sp,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onBackground,
-                lineHeight = 30.sp
+                lineHeight = 30.sp,
+                color = MaterialTheme.colorScheme.onBackground
             )
         }
     }

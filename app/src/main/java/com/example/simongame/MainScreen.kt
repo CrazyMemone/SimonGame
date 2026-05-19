@@ -49,7 +49,7 @@ fun MainScreen(onEndGame: (String, Int) -> Unit) {
         }
     }
 
-    // play the tone associated with the color index using the persistent generator
+    // Play the tone associated with the color index using the persistent generator
     fun playSound(idx: Int) {
         if (idx < 0) return
         try {
@@ -57,7 +57,7 @@ fun MainScreen(onEndGame: (String, Int) -> Unit) {
         } catch (e: Exception) {}
     }
 
-    // handle the computer proposal sequence with pause logic
+    // Handle the computer proposal sequence with pause logic
     LaunchedEffect(isComputerPlaying, isPaused) {
         // The computer only acts if it is its turn and if the game is not paused
         if (isComputerPlaying && !isPaused) {
@@ -82,7 +82,7 @@ fun MainScreen(onEndGame: (String, Int) -> Unit) {
         }
     }
 
-    // finalize the game and send data to the activity
+    // Finalize the game and send data to the activity
     val finalize = {
         if (computerSequence.size <= 1 && userSequence.isEmpty()) {
             onEndGame("", -1)
@@ -93,7 +93,7 @@ fun MainScreen(onEndGame: (String, Int) -> Unit) {
 
     BackHandler { finalize() }
 
-    // logic for handling color rectangle pressure
+    // Logic for handling color rectangle pressure
     fun handleColorClick(char: Char) {
         if (isComputerPlaying || !gameStarted) return
         val idx = colorChars.indexOf(char)

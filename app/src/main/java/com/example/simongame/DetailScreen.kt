@@ -7,20 +7,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-
 fun DetailScreen(matchId: Int?, allRounds: List<String>) {
     // Retrieve match data from the list based on the provided matchId
-    val roundData = remember(matchId) {
+    val rawData = remember(matchId) {
         if (matchId != null && matchId in allRounds.indices) {
-            val r = Round()
-            r.fromString(allRounds[matchId])
-            r
-        } else null
+            allRounds[matchId]
+        } else ""
     }
 
     Column(
@@ -42,14 +42,26 @@ fun DetailScreen(matchId: Int?, allRounds: List<String>) {
 
         Spacer(modifier = Modifier.height(40.dp))
 
-        if (roundData != null) {
-            val fullSequence = roundData.printSequence()
-            val score = roundData.getCount() - 1
+        // Safety check e
+        if (rawData.isNotEmpty()) {
+            // Splits the raw data string into two separate parts using  "|"
+            val parts = rawData.split("|")
+            // Extracts the first element of the array (the color sequence)
+            val sequencePart = parts.getOrNull(0) ?: ""
+            // Extracts the second element (the score)
+            val score = parts.getOrNull(1)?.toIntOrNull() ?: 0
+            // Creates a temporary instance
+            val tempRound = Round()
+            // Passes the clean color string to the class method to rebuild the list of GameColor objects in memory
+            tempRound.fromString(sequencePart)
+            // Generates the final formatted color string based on the rules defined inside the class itself (e.g., via printLetter())
+            val formattedSequence = tempRound.printSequence()
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // left side: circle container for the score
+                // Circular container displaying the total count of colors in the sequence (scaled up)
                 Surface(
                     color = MaterialTheme.colorScheme.primaryContainer,
                     shape = MaterialTheme.shapes.medium,
@@ -67,33 +79,38 @@ fun DetailScreen(matchId: Int?, allRounds: List<String>) {
 
                 Spacer(modifier = Modifier.width(20.dp))
 
-                // Right side: match sequence details
+                // Column containing the sequence text with dynamic color highlights (scaled up)
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "Sequence recorded:",
-                        fontSize = 16.sp,
-                        color = MaterialTheme.colorScheme.secondary,
-                        fontWeight = FontWeight.SemiBold
-                    )
+                        text = buildAnnotatedString {
+                            // Split the formatted sequence into a list of individual color strings
+                            val colors = if (formattedSequence.isNotEmpty()) formattedSequence.split(", ") else emptyList()
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                            // Iterate through each color in the list along with its index position
+                            colors.forEachIndexed { index, color ->
+                                // Check if the current item is at or past the point where the user made an error
+                                val isErrorOrBeyond = index >= score
 
-                    Text(
-                        text = fullSequence,
+                                // Apply a specific text style dynamically based on the game result
+                                withStyle(style = SpanStyle(
+                                    // Highlight failed or subsequent colors in red
+                                    color = if (isErrorOrBeyond) Color.Red else Color.Unspecified,
+                                    // Make the error sequence bold for better visual emphasis
+                                    fontWeight = if (isErrorOrBeyond) FontWeight.Bold else FontWeight.Normal
+                                )) {
+                                    // Append the current color string to the annotated sequence builder
+                                    append(color)
+                                }
+
+                                // Add a comma and space separator between colors, except after the last element
+                                if (index < colors.size - 1) append(", ")
+                            }
+                        },
                         fontSize = 22.sp,
-                        lineHeight = 30.sp,
-                        color = MaterialTheme.colorScheme.onSurface
+                        lineHeight = 30.sp
                     )
                 }
             }
         }
-
-        Spacer(modifier = Modifier.height(50.dp))
-
-        Text(
-            text = "Use the system back button to return to the list",
-            fontSize = 14.sp,
-            color = Color.Gray
-        )
     }
 }

@@ -37,15 +37,8 @@ class MainActivity : ComponentActivity() {
                         startDestination = "history"
                     ) {
                         composable(route = "history") {
-                            // Transform the list of strings into a list of Round objects
-                            val roundList = mutableListOf<Round>()
-                            for (sequence in rounds) {
-                                val round = Round()
-                                round.fromString(sequence)
-                                roundList.add(round)
-                            }
                             SecondScreen(
-                                rounds = roundList,
+                                rawRounds = rounds,
                                 onPlayClick = { navController.navigate("main") },
                                 onMatchClick = { index ->
                                     navController.navigate("detail/$index")
@@ -55,14 +48,13 @@ class MainActivity : ComponentActivity() {
 
                         // MainScreen
                         composable("main") {
-                            MainScreen(
-                                onEndGame = { sequence, errorIdx ->
-                                    if (errorIdx != -1) {
-                                        rounds.add(sequence) // Add sequence to the list
-                                    }
-                                    navController.popBackStack()
+                            MainScreen(onEndGame = { sequence, score ->
+                                if (sequence.isNotEmpty() && score != -1) {
+                                    // Save the original computer string and the score separated by "|"
+                                    rounds.add("$sequence|$score")
                                 }
-                            )
+                                navController.popBackStack("history", inclusive = false)
+                            })
                         }
 
                         // DetailScreen

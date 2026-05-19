@@ -1,5 +1,5 @@
 package com.example.simongame
-// represents a single game round
+
 class Round() {
     // list of selected colors in the sequence
     private val sequence: MutableList<GameColor> = mutableListOf()
