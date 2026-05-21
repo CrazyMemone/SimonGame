@@ -13,16 +13,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.simongame.data.GameMatch
 
 @Composable
-fun DetailScreen(matchId: Int?, allRounds: List<String>) {
-    // Retrieve match data from the list based on the provided matchId
-    val rawData = remember(matchId) {
-        if (matchId != null && matchId in allRounds.indices) {
-            allRounds[matchId]
-        } else ""
-    }
-
+fun DetailScreen(match: GameMatch?) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -43,17 +37,10 @@ fun DetailScreen(matchId: Int?, allRounds: List<String>) {
         Spacer(modifier = Modifier.height(40.dp))
 
         // Safety check e
-        if (rawData.isNotEmpty()) {
-            // Splits the raw data string into two separate parts using  "|"
-            val parts = rawData.split("|")
-            // Extracts the first element of the array (the color sequence)
-            val sequencePart = parts.getOrNull(0) ?: ""
-            // Extracts the second element (the score)
-            val score = parts.getOrNull(1)?.toIntOrNull() ?: 0
-            // Creates a temporary instance
+        if (match!=null) {
             val tempRound = Round()
             // Passes the clean color string to the class method to rebuild the list of GameColor objects in memory
-            tempRound.fromString(sequencePart)
+            tempRound.fromString(match.fullSequence)
             // Generates the final formatted color string based on the rules defined inside the class itself (e.g., via printLetter())
             val formattedSequence = tempRound.printSequence()
 
@@ -69,7 +56,7 @@ fun DetailScreen(matchId: Int?, allRounds: List<String>) {
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Text(
-                            text = score.toString(),
+                            text =match.maxCorrectLength.toString(),
                             fontSize = 28.sp,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -83,26 +70,15 @@ fun DetailScreen(matchId: Int?, allRounds: List<String>) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = buildAnnotatedString {
-                            // Split the formatted sequence into a list of individual color strings
                             val colors = if (formattedSequence.isNotEmpty()) formattedSequence.split(", ") else emptyList()
-
-                            // Iterate through each color in the list along with its index position
                             colors.forEachIndexed { index, color ->
-                                // Check if the current item is at or past the point where the user made an error
-                                val isErrorOrBeyond = index >= score
-
-                                // Apply a specific text style dynamically based on the game result
+                                val isErrorOrBeyond = index >= match.maxCorrectLength
                                 withStyle(style = SpanStyle(
-                                    // Highlight failed or subsequent colors in red
                                     color = if (isErrorOrBeyond) Color.Red else Color.Unspecified,
-                                    // Make the error sequence bold for better visual emphasis
                                     fontWeight = if (isErrorOrBeyond) FontWeight.Bold else FontWeight.Normal
                                 )) {
-                                    // Append the current color string to the annotated sequence builder
                                     append(color)
                                 }
-
-                                // Add a comma and space separator between colors, except after the last element
                                 if (index < colors.size - 1) append(", ")
                             }
                         },

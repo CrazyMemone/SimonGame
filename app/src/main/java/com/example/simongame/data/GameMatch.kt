@@ -1,21 +1,12 @@
 package com.example.simongame.data
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-
-@Entity(tableName = "match")
+/**
+ * Data class representing a single Simon game match history entry.
+ */
 data class GameMatch(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
-
-    @ColumnInfo(name = "max_correct_length")
-    val maxCorrectLength: Int, // 'n'
-
-    @ColumnInfo(name = "full_sequence")
-    val fullSequence: String,  // sequence 'n+1'
-    @ColumnInfo(name = "error_index")
-    val errorIndex: Int,       // the index where the error occurred
-
-    @ColumnInfo(name = "timestamp")
-    val timestamp: Long = System.currentTimeMillis() // to sort your history
+    val id: Int = 0,
+    val maxCorrectLength: Int, // The 'n' score (maximum sequence correctly reproduced by the player)
+    val fullSequence: String,  // The complete 'n+1' sequence where the first mistake occurred
+    val errorIndex: Int,       // The exact index position where the player made the mistake
+    val timestamp: Long        // Timestamp in milliseconds used to sort the match history chronologically
 )

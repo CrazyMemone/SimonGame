@@ -19,11 +19,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.simongame.data.GameMatch
 
 @Composable
 // Screen that displays the history of played rounds.
 fun SecondScreen(
-    rawRounds: List<String>,
+    matches: List<GameMatch>,
     onPlayClick: () -> Unit,
     onMatchClick: (Int) -> Unit
 ) {
@@ -63,8 +64,8 @@ fun SecondScreen(
             }
 
             // Match list
-            itemsIndexed(rawRounds) { index, rawString ->
-                RoundItem(rawString = rawString, onClick = { onMatchClick(index) })
+            itemsIndexed(matches) { index, match ->
+                RoundItem(match = match, onClick = { onMatchClick(index) })
             }
         }
     }
@@ -72,20 +73,10 @@ fun SecondScreen(
 
 @Composable
 // Represents a single element (row) within the match history list
-fun RoundItem(rawString: String, onClick: () -> Unit) {
-    // Safety check: if the stored string is empty, stop execution and display nothing
-    if (rawString.isEmpty()) return
-    // Split the raw string into two parts using the separator character "|"
-    val parts = rawString.split("|")
-    // / Get the first part (the sequence of letters from the computer)
-    val sequencePart = parts.getOrNull(0) ?: ""
-    // Get the second part (the user's score), converting it to an integer
-    val score = parts.getOrNull(1)?.toIntOrNull() ?: 0
-    // Create a temporary instance
+fun RoundItem(match: GameMatch, onClick: () -> Unit) {
     val tempRound = Round()
-    tempRound.fromString(sequencePart)
+    tempRound.fromString(match.fullSequence)
     val formattedSequence = tempRound.printSequence()
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -100,7 +91,7 @@ fun RoundItem(rawString: String, onClick: () -> Unit) {
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Text(
-                    text = score.toString(),
+                    text = match.maxCorrectLength.toString(),
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -119,7 +110,7 @@ fun RoundItem(rawString: String, onClick: () -> Unit) {
                     // Iterate through each color in the list along with its index position
                     colors.forEachIndexed { index, color ->
                         // Check if the current item is at or past the point where the user made an error
-                        val isErrorOrBeyond = index >= score
+                        val isErrorOrBeyond = index >= match.maxCorrectLength
 
                         // Apply a specific text style dynamically based on the game result
                         withStyle(style = SpanStyle(
