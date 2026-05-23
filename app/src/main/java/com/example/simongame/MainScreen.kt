@@ -1,8 +1,6 @@
 package com.example.simongame
 
 import android.content.res.Configuration
-import android.media.AudioManager
-import android.media.ToneGenerator
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -19,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -26,7 +25,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun MainScreen(onEndGame: (String, Int) -> Unit) {
+fun MainScreen(
+    soundPool: android.media.SoundPool,
+    soundIds: IntArray,
+    errorSoundId: Int,
+    onEndGame: (String, Int) -> Unit
+) {
     var computerSequence by rememberSaveable { mutableStateOf(listOf<Char>()) }
     var userSequence by rememberSaveable { mutableStateOf(listOf<Char>()) }
     var isComputerPlaying by rememberSaveable { mutableStateOf(false) }
@@ -34,27 +38,28 @@ fun MainScreen(onEndGame: (String, Int) -> Unit) {
     var gameStarted by rememberSaveable { mutableStateOf(false) }
     var activeColorIndex by rememberSaveable { mutableIntStateOf(-1) }
     var playbackIndex by rememberSaveable { mutableIntStateOf(0) }
-
+    var isGameOver by rememberSaveable { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val orientation = LocalConfiguration.current.orientation
     val colorChars = listOf('R', 'G', 'B', 'M', 'Y', 'C')
 
-    // Persistent ToneGenerator to prevent sound loss during long matches
-    val toneGenerator = remember { ToneGenerator(AudioManager.STREAM_MUSIC, 100) }
-
-    // Release sound resources when the screen is disposed
-    DisposableEffect(Unit) {
-        onDispose {
-            toneGenerator.release()
+    // Play the tone associated with the color index using the persistent generator
+    fun playSound(idx: Int) {
+        if (idx in 0..5) {
+            val streamId = soundPool.play(soundIds[idx], 1.0f, 1.0f, 1, 0, 1.0f)
+            scope.launch {
+                delay(400)
+                soundPool.stop(streamId)
+            }
         }
     }
 
-    // Play the tone associated with the color index using the persistent generator
-    fun playSound(idx: Int) {
-        if (idx < 0) return
-        try {
-            toneGenerator.startTone(ToneGenerator.TONE_DTMF_0 + idx, 200)
-        } catch (e: Exception) {}
+    fun playErrorSound() {
+        val streamId = soundPool.play(errorSoundId, 1.0f, 1.0f, 2, 0, 1.0f)
+        scope.launch {
+            delay(700)
+            soundPool.stop(streamId)
+        }
     }
 
     // Handle the computer proposal sequence with pause logic
@@ -85,7 +90,7 @@ fun MainScreen(onEndGame: (String, Int) -> Unit) {
     // Finalize the game and send data to the activity
     val finalize = {
         if (computerSequence.size <= 1 && userSequence.isEmpty()) {
-            onEndGame("", -1)
+            onEndGame("", 0)
         } else {
             onEndGame(computerSequence.joinToString(", "), userSequence.size)
         }
@@ -95,11 +100,11 @@ fun MainScreen(onEndGame: (String, Int) -> Unit) {
 
     // Logic for handling color rectangle pressure
     fun handleColorClick(char: Char) {
-        if (isComputerPlaying || !gameStarted) return
+        if (isGameOver || isComputerPlaying || !gameStarted) return
         val idx = colorChars.indexOf(char)
-        playSound(idx)
 
         if (char == computerSequence[userSequence.size]) {
+            playSound(idx) // Play normal sound only if correct
             userSequence = userSequence + char
             if (userSequence.size == computerSequence.size) {
                 scope.launch {
@@ -110,7 +115,8 @@ fun MainScreen(onEndGame: (String, Int) -> Unit) {
                 }
             }
         } else {
-            finalize()
+            isGameOver = true
+            playErrorSound()
         }
     }
 
@@ -133,12 +139,23 @@ fun MainScreen(onEndGame: (String, Int) -> Unit) {
                 modifier = Modifier.width(400.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                // If game is over, show the error notification text
+                if (isGameOver) {
+                    Text(
+                        text = stringResource(id = R.string.msg_game_over),
+                        color = Color.Red,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                }
                 SequenceText(sequence = if (isComputerPlaying) "" else userSequence.joinToString(", "))
 
                 ButtonsArea(
                     started = gameStarted,
                     playing = isComputerPlaying,
                     paused = isPaused,
+                    isGameOver = isGameOver,
                     onStart = {
                         gameStarted = true
                         computerSequence = listOf(colorChars.random())
@@ -157,6 +174,15 @@ fun MainScreen(onEndGame: (String, Int) -> Unit) {
                 .padding(top = 50.dp),
             horizontalAlignment = Alignment.CenterHorizontally // Center the grid and other elements
         ) {
+            if (isGameOver) {
+                Text(
+                    text = stringResource(id = R.string.msg_game_over),
+                    color = Color.Red,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+            }
             ColorGrid(activeIndex = activeColorIndex, onColorPressed = { handleColorClick(it) })
 
             SequenceText(sequence = if (isComputerPlaying) "" else userSequence.joinToString(", "))
@@ -165,6 +191,7 @@ fun MainScreen(onEndGame: (String, Int) -> Unit) {
                 started = gameStarted,
                 playing = isComputerPlaying,
                 paused = isPaused,
+                isGameOver = isGameOver,
                 onStart = {
                     gameStarted = true
                     computerSequence = listOf(colorChars.random())
@@ -230,6 +257,7 @@ fun ButtonsArea(
     started: Boolean,
     playing: Boolean,
     paused: Boolean,
+    isGameOver: Boolean,
     onStart: () -> Unit,
     onPause: () -> Unit,
     onEnd: () -> Unit
@@ -243,23 +271,26 @@ fun ButtonsArea(
             enabled = !started,
             modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp)
         ) {
-            Text(text = "Avvia Partita")
+            Text(text = stringResource(id = R.string.btn_start_game))
         }
 
         Button(
             onClick = onPause,
-            enabled = playing,
+            enabled = playing && !isGameOver,
             modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp)
         ) {
-            Text(text = if (paused) "Riprendi" else "Pausa")
+            Text(
+                text = if (paused) stringResource(id = R.string.btn_resume)
+                else stringResource(id = R.string.btn_pause)
+            )
         }
 
         Button(
             onClick = onEnd,
-            enabled = started,
+            enabled = started && !isGameOver,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(text = "Fine Partita")
+            Text(text = stringResource(id = R.string.fine_partita))
         }
     }
 }

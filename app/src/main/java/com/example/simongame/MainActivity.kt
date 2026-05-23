@@ -22,10 +22,34 @@ import com.example.simongame.ui.theme.SimonGameTheme
 
 class MainActivity : ComponentActivity() {
 
+    private lateinit var soundPool: android.media.SoundPool
+    private val soundIds = IntArray(6)
+    private var errorSoundId: Int = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Initialize the SQLite native helper (create or open the simon_database.db file)
         val dbHelper = DatabaseHelper(this)
+
+        val audioAttributes = android.media.AudioAttributes.Builder()
+            .setUsage(android.media.AudioAttributes.USAGE_GAME)
+            .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .build()
+
+        soundPool = android.media.SoundPool.Builder()
+            .setMaxStreams(6)
+            .setAudioAttributes(audioAttributes)
+            .build()
+
+        // Caricamento dei file inseriti nella cartella raw
+        soundIds[0] = soundPool.load(this, R.raw.rosso, 1)
+        soundIds[1] = soundPool.load(this, R.raw.verde, 1)
+        soundIds[2] = soundPool.load(this, R.raw.blu, 1)
+        soundIds[3] = soundPool.load(this, R.raw.magenta, 1)
+        soundIds[4] = soundPool.load(this, R.raw.giallo, 1)
+        soundIds[5] = soundPool.load(this, R.raw.ciano, 1)
+        errorSoundId = soundPool.load(this, R.raw.errore, 1)
+
         setContent {
             SimonGameTheme {
                 Surface(
@@ -43,29 +67,32 @@ class MainActivity : ComponentActivity() {
                         composable(route = "history") {
                             SecondScreen(
                                 matches = matches,
-                                onPlayClick = { navController.navigate("main") },
+                                onPlayClick = { navController.navigate(route = "main") },
                                 onMatchClick = { index ->
-                                    navController.navigate("detail/$index")
+                                    navController.navigate(route = "detail/$index")
                                 }
                             )
                         }
 
                         // MainScreen
-                        composable("main") {
-                            MainScreen(onEndGame = { sequence, score ->
-                                if (sequence.isNotEmpty() && score != -1) {
-                                    // Save the original computer string and the score separated by "|"
+                        composable(route = "main") {
+                            MainScreen(
+                                soundPool = soundPool,
+                                soundIds = soundIds,
+                                errorSoundId = errorSoundId,
+                                onEndGame = { sequence, score ->
+                                    // mantieni la tua logica di salvataggio esistente...
                                     dbHelper.insertMatch(
-                                        maxCorrectLength = score, // Maximum score guessed (n)
-                                        fullSequence = sequence,   // Error sequence (n+1)
-                                        errorIndex = score         // Index where the error occurred
+                                        maxCorrectLength = score,
+                                        fullSequence = sequence,
+                                        errorIndex = -1
                                     )
                                     // We immediately update the state by reading data from the DB
                                     // This causes the list in SecondScreen to update instantly!
                                     matches = dbHelper.getAllMatches()
+                                    navController.popBackStack(route = "history", inclusive = false)
                                 }
-                                navController.popBackStack("history", inclusive = false)
-                            })
+                            )
                         }
 
                         // DetailScreen
@@ -82,5 +109,11 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Rilascia le risorse del SoundPool per evitare memory leak quando l'Activity viene distrutta
+        soundPool.release()
     }
 }

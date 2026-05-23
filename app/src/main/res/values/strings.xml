@@ -2,4 +2,13 @@
     <string name="app_name">SimonGame</string>
     <string name="cancella">Cancella</string>
     <string name="fine_partita">Fine partita</string>
+
+    <string name="title_history">Cronologia Partite</string>
+    <string name="title_detail">Dettaglio Partita</string>
+    <string name="title_game">Area di Gioco</string>
+
+    <string name="btn_start_game">Avvia Partita</string>
+    <string name="btn_pause">Pausa</string>
+    <string name="btn_resume">Riprendi</string>
+    <string name="msg_game_over">Game Over! Premi Back per salvare e uscire</string>
 </resources>

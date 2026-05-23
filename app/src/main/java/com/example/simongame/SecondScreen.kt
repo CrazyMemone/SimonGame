@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -35,7 +36,7 @@ fun SecondScreen(
                 onClick = onPlayClick,
                 containerColor = MaterialTheme.colorScheme.primary
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Play")
+                Icon(Icons.Default.Add, contentDescription = stringResource(id = R.string.btn_start_game))
             }
         }
     ) { paddingValues ->
@@ -53,7 +54,7 @@ fun SecondScreen(
                     Spacer(modifier = Modifier.height(70.dp))
 
                     Text(
-                        text = "Match list",
+                        text  = stringResource(id = R.string.title_history),
                         fontSize = 30.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
