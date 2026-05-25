@@ -90,7 +90,7 @@ fun MainScreen(
     // Finalize the game and send data to the activity
     val finalize = {
         if (computerSequence.size <= 1 && userSequence.isEmpty()) {
-            onEndGame("", 0)
+            onEndGame("", -1)
         } else {
             onEndGame(computerSequence.joinToString(", "), userSequence.size)
         }
@@ -104,7 +104,14 @@ fun MainScreen(
         val idx = colorChars.indexOf(char)
 
         if (char == computerSequence[userSequence.size]) {
-            playSound(idx) // Play normal sound only if correct
+
+            scope.launch {
+                activeColorIndex = idx
+                playSound(idx) // Play normal sound only if correct
+                delay(300)
+                activeColorIndex = -1
+            }
+
             userSequence = userSequence + char
             if (userSequence.size == computerSequence.size) {
                 scope.launch {

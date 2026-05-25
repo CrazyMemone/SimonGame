@@ -1,14 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">SimonGame</string>
-    <string name="cancella">Delete</string>
-    <string name="fine_partita">End game</string>
-
-    <string name="title_history">Match History</string>
-    <string name="title_detail">Match Detail</string>
-    <string name="title_game">Game Zone</string>
+    <string name="app_name">Simon Game</string>
 
     <string name="btn_start_game">Start Game</string>
     <string name="btn_pause">Pause</string>
     <string name="btn_resume">Resume</string>
-    <string name="msg_game_over">Game Over! Press Back to Save &amp; Exit</string>
+    <string name="fine_partita">End Game</string>
+    <string name="msg_game_over">GAME OVER!</string>
+
+    <string name="title_history">Match History</string>
+    <string name="no_matches">No matches recorded</string>
+    <string name="label_max_length">Max length:</string>
+
+    <string name="title_detail">Match Detail</string>
+    <string name="label_score">Score reached:</string>
+    <string name="label_sequence">Final sequence:</string>
 </resources>

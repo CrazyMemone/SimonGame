@@ -1,14 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">SimonGame</string>
-    <string name="cancella">Cancella</string>
-    <string name="fine_partita">Fine partita</string>
-
-    <string name="title_history">Cronologia Partite</string>
-    <string name="title_detail">Dettaglio Partita</string>
-    <string name="title_game">Area di Gioco</string>
+    <string name="app_name">Simon Game</string>
 
     <string name="btn_start_game">Avvia Partita</string>
     <string name="btn_pause">Pausa</string>
     <string name="btn_resume">Riprendi</string>
-    <string name="msg_game_over">Game Over! Premi Back per salvare e uscire</string>
+    <string name="fine_partita">Fine Partita</string>
+    <string name="msg_game_over">GAME OVER!</string>
+
+    <string name="title_history">Cronologia Partite</string>
+    <string name="no_matches">Nessuna partita registrata</string>
+    <string name="label_max_length">Lunghezza massima:</string>
+
+    <string name="title_detail">Dettaglio Partita</string>
+    <string name="label_score">Punteggio ottenuto:</string>
+    <string name="label_sequence">Sequenza finale:</string>
 </resources>

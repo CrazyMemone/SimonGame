@@ -8,5 +8,4 @@ data class GameMatch(
     val maxCorrectLength: Int, // The 'n' score (maximum sequence correctly reproduced by the player)
     val fullSequence: String,  // The complete 'n+1' sequence where the first mistake occurred
     val errorIndex: Int,       // The exact index position where the player made the mistake
-    val timestamp: Long        // Timestamp in milliseconds used to sort the match history chronologically
 )
