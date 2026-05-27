@@ -10,7 +10,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, "SimonGame.db
         // Create the initial table of matches
         db.execSQL("""
             CREATE TABLE matches (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                _id INTEGER PRIMARY KEY AUTOINCREMENT,
                 max_correct_length INTEGER,
                 full_sequence TEXT,
                 error_index INTEGER

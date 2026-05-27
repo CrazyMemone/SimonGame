@@ -2,9 +2,12 @@ package com.example.simongame
 
 import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -42,6 +45,19 @@ fun MainScreen(
     val scope = rememberCoroutineScope()
     val orientation = LocalConfiguration.current.orientation
     val colorChars = listOf('R', 'G', 'B', 'M', 'Y', 'C')
+
+    val isDark = isSystemInDarkTheme()
+
+    // Gestione dello sfondo dinamico: cambia colore solo in Pausa o Game Over
+    val backgroundColor by animateColorAsState(
+        targetValue = when {
+            isGameOver -> if (isDark) Color(0xFF421D1D) else Color(0xFFFDE8E8) // Sfondo Errore (Rosato/Scuro)
+            isPaused -> if (isDark) Color(0xFF242424) else Color(0xFFF0F0F0)   // Sfondo Pausa (Grigio)
+            else -> MaterialTheme.colorScheme.background                       // Sfondo Standard del telefono
+        },
+        animationSpec = tween(durationMillis = 300),
+        label = "BgAnimation"
+    )
 
     // Play the tone associated with the color index using the persistent generator
     fun playSound(idx: Int) {
@@ -100,11 +116,10 @@ fun MainScreen(
 
     // Logic for handling color rectangle pressure
     fun handleColorClick(char: Char) {
-        if (isGameOver || isComputerPlaying || !gameStarted) return
+        if (isGameOver || isComputerPlaying || !gameStarted || isPaused) return
         val idx = colorChars.indexOf(char)
 
         if (char == computerSequence[userSequence.size]) {
-
             scope.launch {
                 activeColorIndex = idx
                 playSound(idx) // Play normal sound only if correct
@@ -127,35 +142,75 @@ fun MainScreen(
         }
     }
 
-    // Responsive layout based on orientation
-    if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-        // Landscape: grid on the left, controls on the right
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(40.dp), // Spacing from phone edge
-            verticalAlignment = Alignment.CenterVertically // Center elements vertically
-        ) {
-            // Grid on the left side
-            Box(modifier = Modifier.padding(end = 24.dp)) {
-                ColorGrid(activeIndex = activeColorIndex, onColorPressed = { handleColorClick(it) })
-            }
-
-            // Command column
-            Column(
-                modifier = Modifier.width(400.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = backgroundColor
+    ) {
+        // Responsive layout based on orientation
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            // Landscape: grid on the left, controls on the right
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(40.dp), // Spacing from phone edge
+                verticalAlignment = Alignment.CenterVertically // Center elements vertically
             ) {
-                // If game is over, show the error notification text
+                // Grid on the left side
+                Box(modifier = Modifier.padding(end = 24.dp)) {
+                    ColorGrid(activeIndex = activeColorIndex, onColorPressed = { handleColorClick(it) })
+                }
+
+                // Command column
+                Column(
+                    modifier = Modifier.width(400.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    // If game is over, show the error notification text
+                    if (isGameOver) {
+                        Text(
+                            text = stringResource(id = R.string.msg_game_over),
+                            color = Color.Red,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                    }
+                    SequenceText(sequence = if (isComputerPlaying) "" else userSequence.joinToString(", "))
+
+                    ButtonsArea(
+                        started = gameStarted,
+                        playing = isComputerPlaying,
+                        paused = isPaused,
+                        isGameOver = isGameOver,
+                        onStart = {
+                            gameStarted = true
+                            computerSequence = listOf(colorChars.random())
+                            isComputerPlaying = true
+                        },
+                        onPause = { isPaused = !isPaused },
+                        onEnd = { finalize() }
+                    )
+                }
+            }
+        } else {
+            // Portrait: elements stacked vertically
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 50.dp),
+                horizontalAlignment = Alignment.CenterHorizontally // Center the grid and other elements
+            ) {
                 if (isGameOver) {
                     Text(
                         text = stringResource(id = R.string.msg_game_over),
                         color = Color.Red,
-                        fontSize = 18.sp,
+                        fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(bottom = 8.dp)
+                        modifier = Modifier.padding(bottom = 12.dp)
                     )
                 }
+                ColorGrid(activeIndex = activeColorIndex, onColorPressed = { handleColorClick(it) })
+
                 SequenceText(sequence = if (isComputerPlaying) "" else userSequence.joinToString(", "))
 
                 ButtonsArea(
@@ -172,41 +227,6 @@ fun MainScreen(
                     onEnd = { finalize() }
                 )
             }
-        }
-    } else {
-        // Portrait: elements stacked vertically
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 50.dp),
-            horizontalAlignment = Alignment.CenterHorizontally // Center the grid and other elements
-        ) {
-            if (isGameOver) {
-                Text(
-                    text = stringResource(id = R.string.msg_game_over),
-                    color = Color.Red,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 12.dp)
-                )
-            }
-            ColorGrid(activeIndex = activeColorIndex, onColorPressed = { handleColorClick(it) })
-
-            SequenceText(sequence = if (isComputerPlaying) "" else userSequence.joinToString(", "))
-
-            ButtonsArea(
-                started = gameStarted,
-                playing = isComputerPlaying,
-                paused = isPaused,
-                isGameOver = isGameOver,
-                onStart = {
-                    gameStarted = true
-                    computerSequence = listOf(colorChars.random())
-                    isComputerPlaying = true
-                },
-                onPause = { isPaused = !isPaused },
-                onEnd = { finalize() }
-            )
         }
     }
 }

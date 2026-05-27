@@ -35,12 +35,12 @@ fun DetailScreen(match: GameMatch?) {
 
         Spacer(modifier = Modifier.height(40.dp))
 
-        // Safety check e
+        // Safety check
         if (match!=null) {
             val tempRound = Round()
-            // Passes the clean color string to the class method to rebuild the list of GameColor objects in memory
+            // Passes the clean color string to the class method to rebuild the list of GameColor objects
             tempRound.fromString(match.fullSequence)
-            // Generates the final formatted color string based on the rules defined inside the class itself (e.g., via printLetter())
+            // Generates the final formatted color string based on the rules defined inside the class itself
             val formattedSequence = tempRound.printSequence()
 
             Row(

@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
     private fun loadMatchesFromProvider(): List<GameMatch> {
         val matchList = mutableListOf<GameMatch>()
 
-        // Query the Content Provider via the ContentResolver, returns a cursor.
+        // Query the Content Provider returns a cursor.
         val cursor: Cursor? = contentResolver.query(
             MatchProvider.CONTENT_URI,
             null, null, null, null
@@ -39,25 +39,29 @@ class MainActivity : ComponentActivity() {
         cursor?.use { c ->
             // Move the cursor to the first row of the query result
             if (c.moveToFirst()) {
+                // Indexes of all four columns
+                val idIdx = c.getColumnIndexOrThrow("_id")
                 val scoreIdx = c.getColumnIndexOrThrow("max_correct_length")
                 val sequenceIdx = c.getColumnIndexOrThrow("full_sequence")
                 val errorIndexIdx = c.getColumnIndexOrThrow("error_index")
 
                 do {
-                    // Extract the data of the current row pointed to by the Cursor
+                    // Extract values from the cursor
+                    val matchId = c.getInt(idIdx)
                     val score = c.getInt(scoreIdx)
                     val sequence = c.getString(sequenceIdx)
                     val errorIdx = c.getInt(errorIndexIdx)
 
-                    // Map the native cursor data into the Kotlin model object
+                    // Map the data by associating it with the GameMatch parameters
                     matchList.add(
                         GameMatch(
+                            id = matchId,
                             maxCorrectLength = score,
                             fullSequence = sequence,
-                            errorIndex = errorIdx,
+                            errorIndex = errorIdx
                         )
                     )
-                } while (c.moveToNext()) // Move the cursor to the next line
+                } while (c.moveToNext())
             }
         }
         return matchList
@@ -92,7 +96,6 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navController = rememberNavController()
-                    // Compose's reactive state containing the updated list of matches from the DB (interrogato tramite Content Provider)
                     var matches by remember { mutableStateOf(loadMatchesFromProvider()) }
 
                     NavHost(
@@ -127,8 +130,8 @@ class MainActivity : ComponentActivity() {
 
                                         contentResolver.insert(MatchProvider.CONTENT_URI, values)
 
-                                        // We immediately update the state by reading data from the DB
-                                        // This causes the list in SecondScreen to update instantly!
+                                        // Update the state by reading data from the DB
+                                        // List in SecondScreen update
                                         matches = loadMatchesFromProvider()
                                     }
 
