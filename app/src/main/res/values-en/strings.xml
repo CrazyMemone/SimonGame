@@ -15,4 +15,5 @@
     <string name="title_detail">Match Detail</string>
     <string name="label_score">Score reached:</string>
     <string name="label_sequence">Final sequence:</string>
+    <string name="btn_play">Play</string>
 </resources>

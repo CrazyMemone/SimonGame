@@ -7,6 +7,11 @@ import android.media.SoundPool
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -89,6 +94,7 @@ class MainActivity : ComponentActivity() {
             soundPool.load(this, R.raw.ciano, 1)
         )
         val errorSoundId = soundPool.load(this, R.raw.errore, 1)
+
         setContent {
             SimonGameTheme {
                 Surface(
@@ -102,6 +108,7 @@ class MainActivity : ComponentActivity() {
                         navController = navController,
                         startDestination = "history"
                     ) {
+                        // SecondScreen
                         composable(route = "history") {
                             SecondScreen(
                                 matches = matches,
@@ -120,7 +127,6 @@ class MainActivity : ComponentActivity() {
                                 errorSoundId = errorSoundId,
                                 onEndGame = { finalSequence, finalScore ->
                                     if (finalSequence.isNotEmpty() && finalScore != -1) {
-
                                         // Prepare the records by mapping them into a ContentValues object
                                         val values = ContentValues().apply {
                                             put("max_correct_length", finalScore)
@@ -130,23 +136,29 @@ class MainActivity : ComponentActivity() {
 
                                         contentResolver.insert(MatchProvider.CONTENT_URI, values)
 
-                                        // Update the state by reading data from the DB
-                                        // List in SecondScreen update
+                                        // We immediately update the state by reading data from the DB
                                         matches = loadMatchesFromProvider()
                                     }
-
                                     navController.popBackStack(route = "history", inclusive = false)
                                 }
                             )
                         }
 
-
                         // DetailScreen
-                        composable(route = "detail/{matchId}") { backStackEntry ->
+                        composable(
+                            route = "detail/{matchId}",
+                            // Zoom in
+                            enterTransition = {
+                                scaleIn(animationSpec = tween(400), initialScale = 0.5f) + fadeIn(animationSpec = tween(400))
+                            },
+                            // Zoom out
+                            exitTransition = {
+                                scaleOut(animationSpec = tween(400), targetScale = 0.5f) + fadeOut(animationSpec = tween(400))
+                            }
+                        ) { backStackEntry ->
                             val indexString = backStackEntry.arguments?.getString("matchId")
                             val index = indexString?.toIntOrNull()
 
-                            // Find the correct item in the list based on the clicked position
                             val selectedMatch = index?.let { matches.getOrNull(it) }
 
                             DetailScreen(match = selectedMatch)

@@ -48,7 +48,7 @@ fun MainScreen(
 
     val isDark = isSystemInDarkTheme()
 
-    // Gestione dello sfondo dinamico: cambia colore solo in Pausa o Game Over
+    // Dynamic background management: change color only during Pause or Game Over
     val backgroundColor by animateColorAsState(
         targetValue = when {
             isGameOver -> if (isDark) Color(0xFF421D1D) else Color(0xFFFDE8E8) // Sfondo Errore (Rosato/Scuro)
@@ -83,7 +83,6 @@ fun MainScreen(
         // The computer only acts if it is its turn and if the game is not paused
         if (isComputerPlaying && !isPaused) {
             // Loop that loops through the generated sequence until it reaches the end
-            // 'playbackIndex' to see where we left off (useful after a pause)
             while (playbackIndex < computerSequence.size) {
                 val char = computerSequence[playbackIndex]
                 val idx = colorChars.indexOf(char)

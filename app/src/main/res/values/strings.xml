@@ -15,4 +15,5 @@
     <string name="title_detail">Dettaglio Partita</string>
     <string name="label_score">Punteggio ottenuto:</string>
     <string name="label_sequence">Sequenza finale:</string>
+    <string name="btn_play">Gioca</string>
 </resources>

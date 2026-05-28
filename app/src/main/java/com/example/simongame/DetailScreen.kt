@@ -6,9 +6,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -23,14 +25,17 @@ fun DetailScreen(match: GameMatch?) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Space to lower the title from the top edge
-        Spacer(modifier = Modifier.height(70.dp))
+        Spacer(modifier = Modifier.height(130.dp))
 
-        // Screen title
+        // Screen title - Centered and Enlarged
         Text(
-            text = "Match Details",
-            fontSize = 30.sp,
+            text = stringResource(id = R.string.title_detail),
+            fontSize = 42.sp,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+
         )
 
         Spacer(modifier = Modifier.height(40.dp))
@@ -43,47 +48,55 @@ fun DetailScreen(match: GameMatch?) {
             // Generates the final formatted color string based on the rules defined inside the class itself
             val formattedSequence = tempRound.printSequence()
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                contentAlignment = Alignment.Center
             ) {
-                // Circular container displaying the total count of colors in the sequence (scaled up)
-                Surface(
-                    color = MaterialTheme.colorScheme.primaryContainer,
-                    shape = MaterialTheme.shapes.medium,
-                    modifier = Modifier.size(70.dp)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Box(contentAlignment = Alignment.Center) {
+                    // Circular container displaying the total count of colors in the sequence (scaled up)
+                    Surface(
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        shape = MaterialTheme.shapes.medium,
+                        modifier = Modifier.size(120.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text(
+                                text = match.maxCorrectLength.toString(),
+                                fontSize = 54.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.width(30.dp))
+
+                    // Column containing the sequence text with dynamic color highlights (scaled up)
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text =match.maxCorrectLength.toString(),
-                            fontSize = 28.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                            text = buildAnnotatedString {
+                                val colors = if (formattedSequence.isNotEmpty()) formattedSequence.split(", ") else emptyList()
+                                colors.forEachIndexed { index, color ->
+                                    val isErrorOrBeyond = index >= match.maxCorrectLength
+                                    withStyle(style = SpanStyle(
+                                        color = if (isErrorOrBeyond) Color.Red else Color.Unspecified,
+                                        fontWeight = if (isErrorOrBeyond) FontWeight.Bold else FontWeight.Normal
+                                    )) {
+                                        append(color)
+                                    }
+                                    if (index < colors.size - 1) append(", ")
+                                }
+                            },
+                            fontSize = 32.sp,
+                            lineHeight = 42.sp,
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                     }
-                }
-
-                Spacer(modifier = Modifier.width(20.dp))
-
-                // Column containing the sequence text with dynamic color highlights (scaled up)
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = buildAnnotatedString {
-                            val colors = if (formattedSequence.isNotEmpty()) formattedSequence.split(", ") else emptyList()
-                            colors.forEachIndexed { index, color ->
-                                val isErrorOrBeyond = index >= match.maxCorrectLength
-                                withStyle(style = SpanStyle(
-                                    color = if (isErrorOrBeyond) Color.Red else Color.Unspecified,
-                                    fontWeight = if (isErrorOrBeyond) FontWeight.Bold else FontWeight.Normal
-                                )) {
-                                    append(color)
-                                }
-                                if (index < colors.size - 1) append(", ")
-                            }
-                        },
-                        fontSize = 22.sp,
-                        lineHeight = 30.sp
-                    )
                 }
             }
         }

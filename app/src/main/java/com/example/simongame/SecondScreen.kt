@@ -7,15 +7,18 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -31,12 +34,24 @@ fun SecondScreen(
     val orientation = LocalConfiguration.current.orientation
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(
+            ExtendedFloatingActionButton(
                 onClick = onPlayClick,
-                containerColor = MaterialTheme.colorScheme.primary
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Play")
-            }
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                icon = {
+                    Icon(
+                        Icons.Default.PlayArrow,
+                        contentDescription = stringResource(id = R.string.btn_play)
+                    )
+                },
+                text = {
+                    Text(
+                        text = stringResource(id = R.string.btn_play),
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            )
         }
     ) { paddingValues ->
         LazyColumn(
@@ -53,7 +68,7 @@ fun SecondScreen(
                     Spacer(modifier = Modifier.height(70.dp))
 
                     Text(
-                        text = "Match list",
+                        text = stringResource(id = R.string.title_history),
                         fontSize = 30.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
@@ -81,7 +96,7 @@ fun RoundItem(match: GameMatch, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(16.dp),
+            .padding(50.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Surface(
@@ -104,32 +119,26 @@ fun RoundItem(match: GameMatch, onClick: () -> Unit) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = buildAnnotatedString {
-                    // Split the formatted sequence into a list of individual color strings
                     val colors = if (formattedSequence.isNotEmpty()) formattedSequence.split(", ") else emptyList()
 
-                    // Iterate through each color in the list along with its index position
                     colors.forEachIndexed { index, color ->
-                        // Check if the current item is at or past the point where the user made an error
                         val isErrorOrBeyond = index >= match.maxCorrectLength
 
-                        // Apply a specific text style dynamically based on the game result
                         withStyle(style = SpanStyle(
-                            // Highlight failed or subsequent colors in red
                             color = if (isErrorOrBeyond) Color.Red else Color.Unspecified,
-                            // Make the error sequence bold for better visual emphasis
                             fontWeight = if (isErrorOrBeyond) FontWeight.Bold else FontWeight.Normal
                         )) {
-                            // Append the current color string to the annotated sequence builder
                             append(color)
                         }
 
-                        // Add a comma and space separator between colors, except after the last element
                         if (index < colors.size - 1) append(", ")
                     }
                 },
                 fontSize = 22.sp,
                 lineHeight = 30.sp,
-                color = MaterialTheme.colorScheme.onBackground
+                color = MaterialTheme.colorScheme.onBackground,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }
