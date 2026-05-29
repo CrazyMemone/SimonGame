@@ -51,9 +51,9 @@ fun MainScreen(
     // Dynamic background management: change color only during Pause or Game Over
     val backgroundColor by animateColorAsState(
         targetValue = when {
-            isGameOver -> if (isDark) Color(0xFF421D1D) else Color(0xFFFDE8E8) // Sfondo Errore (Rosato/Scuro)
-            isPaused -> if (isDark) Color(0xFF242424) else Color(0xFFF0F0F0)   // Sfondo Pausa (Grigio)
-            else -> MaterialTheme.colorScheme.background                       // Sfondo Standard del telefono
+            isGameOver -> if (isDark) Color(0xFF421D1D) else Color(0xFFFDE8E8) // Error Background (Pinkish/Dark)
+            isPaused -> if (isDark) Color(0xFF242424) else Color(0xFFF0F0F0)   // Pause Background (Gray)
+            else -> MaterialTheme.colorScheme.background                       // Standard Background
         },
         animationSpec = tween(durationMillis = 300),
         label = "BgAnimation"
@@ -96,7 +96,7 @@ fun MainScreen(
                 //  Increment the index to advance to the next color in the sequence in the next loop
                 playbackIndex++
             }
-            // Once the entire sequence is complete: the computer stops playing and passes the turn to the user
+            // Once the entire sequence is complete the computer stops playing and passes the turn to the user
             isComputerPlaying = false
             playbackIndex = 0
         }

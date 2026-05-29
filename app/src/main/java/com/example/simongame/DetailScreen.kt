@@ -27,7 +27,7 @@ fun DetailScreen(match: GameMatch?) {
         // Space to lower the title from the top edge
         Spacer(modifier = Modifier.height(130.dp))
 
-        // Screen title - Centered and Enlarged
+        // Screen title
         Text(
             text = stringResource(id = R.string.title_detail),
             fontSize = 42.sp,
@@ -58,7 +58,7 @@ fun DetailScreen(match: GameMatch?) {
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Circular container displaying the total count of colors in the sequence (scaled up)
+                    // Circular container displaying the total count of colors in the sequence
                     Surface(
                         color = MaterialTheme.colorScheme.primaryContainer,
                         shape = MaterialTheme.shapes.medium,
@@ -76,7 +76,7 @@ fun DetailScreen(match: GameMatch?) {
 
                     Spacer(modifier = Modifier.width(30.dp))
 
-                    // Column containing the sequence text with dynamic color highlights (scaled up)
+                    // Column containing the sequence text with dynamic color highlights
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = buildAnnotatedString {

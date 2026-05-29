@@ -9,11 +9,8 @@
     <string name="msg_game_over">GAME OVER!</string>
 
     <string name="title_history">Cronologia Partite</string>
-    <string name="no_matches">Nessuna partita registrata</string>
     <string name="label_max_length">Lunghezza massima:</string>
 
     <string name="title_detail">Dettaglio Partita</string>
-    <string name="label_score">Punteggio ottenuto:</string>
-    <string name="label_sequence">Sequenza finale:</string>
     <string name="btn_play">Gioca</string>
 </resources>

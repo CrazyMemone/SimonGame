@@ -34,7 +34,7 @@ class MainActivity : ComponentActivity() {
     private fun loadMatchesFromProvider(): List<GameMatch> {
         val matchList = mutableListOf<GameMatch>()
 
-        // Query the Content Provider returns a cursor.
+        // Query the Content Provider returns a cursor
         val cursor: Cursor? = contentResolver.query(
             MatchProvider.CONTENT_URI,
             null, null, null, null
@@ -136,7 +136,7 @@ class MainActivity : ComponentActivity() {
 
                                         contentResolver.insert(MatchProvider.CONTENT_URI, values)
 
-                                        // We immediately update the state by reading data from the DB
+                                        // Update the state by reading data from the DB
                                         matches = loadMatchesFromProvider()
                                     }
                                     navController.popBackStack(route = "history", inclusive = false)

@@ -56,7 +56,7 @@ class MatchProvider : ContentProvider() {
                 // Open the database in write mode to insert the row sent by the ContentResolver
                 val id = db.insert("matches", null, values)
                 if (id > 0) {
-                    //  Notify any active observers that the data backing this URI has changed
+                    // Notify any active observers that the data backing this URI has changed
                     context?.contentResolver?.notifyChange(uri, null)
                     // Return the specific URI of the newly created record by appending its generated unique ID
                     Uri.withAppendedPath(CONTENT_URI, id.toString())
