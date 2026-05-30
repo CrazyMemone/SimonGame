@@ -48,6 +48,13 @@ fun MainScreen(
 
     val isDark = isSystemInDarkTheme()
 
+// Intercepts configuration changes to instantly truncate active tones
+    DisposableEffect(Unit) {
+        onDispose {
+            soundPool.autoPause()
+        }
+    }
+
     // Dynamic background management: change color only during Pause or Game Over
     val backgroundColor by animateColorAsState(
         targetValue = when {
